@@ -67,10 +67,23 @@ async function closeMysql() {
   }
 }
 
+async function insertOne(row) {
+  const db = await getPool();
+  await db.query(`INSERT INTO \`${mysqlTable}\` (id, email) VALUES (?, ?)`, [
+    row.id,
+    row.email,
+  ]);
+}
+async function clearTable() {
+  const db = await getPool();
+  await db.query(`TRUNCATE TABLE \`${mysqlTable}\``);
+}
 module.exports = {
   ensureDatabase,
   ensureTable,
   seedMysql,
   getById,
   closeMysql,
+  insertOne,
+  clearTable,
 };

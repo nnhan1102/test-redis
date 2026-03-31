@@ -1,5 +1,5 @@
-const { createClient } = require('redis');
-const { redis: redisConfig, redisKeyPrefix } = require('../config');
+const { createClient } = require("redis");
+const { redis: redisConfig, redisKeyPrefix } = require("../config");
 
 let client;
 
@@ -9,8 +9,8 @@ async function getRedis() {
       socket: { host: redisConfig.host, port: redisConfig.port },
       password: redisConfig.password || undefined,
     });
-    client.on('error', (err) => {
-      console.error('Redis error:', err.message);
+    client.on("error", (err) => {
+      console.error("Redis error:", err.message);
     });
     await client.connect();
   }
@@ -44,10 +44,16 @@ async function closeRedis() {
   }
 }
 
+async function insertOne(row) {
+  const redis = await getRedis();
+  await redis.set(`${redisKeyPrefix}${row.id}`, JSON.stringify(row));
+}
+
 module.exports = {
   getRedis,
   seedRedis,
   getById,
   flushRedis,
   closeRedis,
+  insertOne,
 };

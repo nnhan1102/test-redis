@@ -1,6 +1,6 @@
-const { loadSeedRows } = require('../src/services');
-const { ensureDatabase, ensureTable, seedMysql } = require('../src/db/mysql');
-const { seedRedis, flushRedis } = require('../src/db/redis');
+const { loadSeedRows } = require("../src/services");
+const { ensureDatabase, ensureTable, seedMysql } = require("../src/db/mysql");
+const { seedRedis, flushRedis } = require("../src/db/redis");
 
 async function main() {
   const rows = await loadSeedRows();

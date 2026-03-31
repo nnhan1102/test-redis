@@ -73,6 +73,48 @@ router.get("/benchmark", async (req, res, next) => {
   }
 });
 
+router.post("/benchmark-write", async (req, res, next) => {
+  try {
+    const { performance } = require("perf_hooks");
+    const { loadSeedRows } = require("./services");
+
+    const { insertOne: mysqlInsert } = require("./db/mysql");
+    const { insertOne: redisInsert, flushRedis } = require("./db/redis");
+
+    const rows = await loadSeedRows();
+
+    // Reset dữ liệu
+    await flushRedis();
+
+    // ⚡ MySQL WRITE
+    const mysqlStart = performance.now();
+
+    for (const row of rows) {
+      await mysqlInsert(row);
+    }
+
+    const mysqlTime = performance.now() - mysqlStart;
+
+    // ⚡ Redis WRITE
+    const redisStart = performance.now();
+
+    for (const row of rows) {
+      await redisInsert(row);
+    }
+
+    const redisTime = performance.now() - redisStart;
+
+    res.json({
+      count: rows.length,
+      mysqlWriteMs: Number(mysqlTime.toFixed(3)),
+      redisWriteMs: Number(redisTime.toFixed(3)),
+      faster: mysqlTime < redisTime ? "mysql" : "redis",
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 function createApp() {
   const app = express();
   app.use(express.json());
